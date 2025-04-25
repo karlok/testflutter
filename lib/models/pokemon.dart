@@ -1,6 +1,6 @@
 class Pokemon {
   final String name;
-  final String url;
+  final String url; // check the API docs
 
   Pokemon({required this.name, required, this.url});
 
