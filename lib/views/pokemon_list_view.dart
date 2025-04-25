@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../viewmodels/pokemon_list_viewmodel.dart';
+import '../views/pokemon_card.dart';
 
 class PokemonListView extends StatefulWidget {
   @override
@@ -26,17 +27,18 @@ class _PokemonListViewState extends State<PokemonListView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Pokémon'))
+      appBar: AppBar(title: Text('Pokémon')),
       body: isLoading
-        ? Center(child: CircularProgressIndicator())
-        : GridView.builder(
-            padding: const EdgeInsets.all(8),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-            itemCount: viewModel.pokemons.length,
-            itemBuilder: (context, index) {
-              return PokemonCard(pokemon: viewModel.pokemons[index]);
-            },
-          ),
+          ? Center(child: CircularProgressIndicator())
+          : GridView.builder(
+              padding: const EdgeInsets.all(8),
+              gridDelegate:
+                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+              itemCount: viewModel.pokemons.length,
+              itemBuilder: (context, index) {
+                return PokemonCard(pokemon: viewModel.pokemons[index]);
+              },
+            ),
     );
   }
 }

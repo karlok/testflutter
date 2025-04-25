@@ -11,7 +11,7 @@ class PokemonCard extends StatelessWidget {
     return Card(
       elevation: 4,
       child: Center(
-        child: child: Text(
+        child: Text(
           pokemon.name.toUpperCase(),
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
