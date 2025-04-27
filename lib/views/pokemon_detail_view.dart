@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../services/api_service.dart';
 import '../models/pokemon.dart';
 import '../models/pokemon_detail.dart';
 import '../utils/type_color.dart';
@@ -47,21 +48,27 @@ class _PokemonDetailViewState extends State<PokemonDetailView> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Hero(
+              tag: widget.pokemon.name,
+              child: CachedNetworkImage(
+                imageUrl: widget.pokemon.imageUrl, // lightweight list image
+                height: 200,
+                width: 200,
+                fit: BoxFit.contain,
+                placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+              ),
+            ),
+            SizedBox(height: 20),
+            if (isLoading)
+              CircularProgressIndicator()
+            else
+              Column(
                 children: [
-                  Hero(
-                    tag: widget.pokemon.name,
-                    child: CachedNetworkImage(
-                      imageUrl: pokemonDetail!.imageUrl,
-                      height: 200,
-                      width: 200,
-                    ),
-                  ),
-                  SizedBox(height: 20),
                   Text(
                     pokemonDetail!.name.toUpperCase(),
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
@@ -80,14 +87,16 @@ class _PokemonDetailViewState extends State<PokemonDetailView> {
                     spacing: 10,
                     children: pokemonDetail!.types
                         .map((type) => Chip(
-                              label: Text(type.toUpperCase()),
-                              backgroundColor: Colors.white.withOpacity(0.8),
-                            ))
+                      label: Text(type.toUpperCase()),
+                      backgroundColor: Colors.white.withOpacity(0.8),
+                    ))
                         .toList(),
                   ),
                 ],
               ),
-            ),
+          ],
+        ),
+      ),
     );
   }
 }

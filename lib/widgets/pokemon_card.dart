@@ -25,12 +25,17 @@ class PokemonCard extends StatelessWidget {
           Hero(
             // does the nifty anim from List to Detail - very cool!
             tag: pokemon.name,
-            child: CachedNetworkImage(
+            child: Container(
+              color: Colors.grey.shade200, // <-- background color for immediate visibility
+              height: 100,
+              width: 100,
+              child: CachedNetworkImage(
                 imageUrl: pokemon.imageUrl,
-                height: 100,
-                width: 100,
-                placeholder: (context, url) => CircularProgressIndicator(),
-                errorWidget: (content, url, error) => Icon(Icons.error)),
+                fit: BoxFit.contain,
+                placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+              ),
+            ),
           ),
           SizedBox(height: 8),
           Text(pokemon.name.toUpperCase(),
