@@ -25,31 +25,46 @@ class _PokemonListViewState extends State<PokemonListView> {
     });
   }
 
+  Future<void> _refreshPokemonList() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    await viewModel.loadPokemons();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Pokémon')),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
-          : AnimationLimiter(
-              child: GridView.builder(
-                padding: const EdgeInsets.all(8),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2),
-                itemCount: viewModel.pokemons.length,
-                itemBuilder: (context, index) {
-                  final pokemon = viewModel.pokemons[index];
-                  return AnimationConfiguration.staggeredGrid(
-                    position: index,
-                    duration: const Duration(milliseconds: 375),
-                    columnCount: 2,
-                    child: ScaleAnimation(
-                      child: FadeInAnimation(
-                        child: PokemonCard(pokemon: pokemon),
+          : RefreshIndicator(
+              onRefresh: _refreshPokemonList,
+              child: AnimationLimiter(
+                child: GridView.builder(
+                  padding: const EdgeInsets.all(8),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                  ),
+                  itemCount: viewModel.pokemons.length,
+                  itemBuilder: (context, index) {
+                    final pokemon = viewModel.pokemons[index];
+                    return AnimationConfiguration.staggeredGrid(
+                      position: index,
+                      duration: const Duration(milliseconds: 375),
+                      columnCount: 2,
+                      child: ScaleAnimation(
+                        child: FadeInAnimation(
+                          child: PokemonCard(pokemon: pokemon),
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
     );
