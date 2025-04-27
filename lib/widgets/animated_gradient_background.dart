@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 class AnimatedGradientBackground extends StatefulWidget {
-  final List<Color> colors;
+  final List<Color> colors1;
+  final List<Color> colors2;
   final Duration duration;
 
   AnimatedGradientBackground({
-    required this.colors,
-    this.duration = const Duration(seconds: 1),
+    required this.colors1,
+    required this.colors2,
+    this.duration = const Duration(seconds: 2),
   });
 
   @override
@@ -16,8 +18,7 @@ class AnimatedGradientBackground extends StatefulWidget {
 class _AnimatedGradientBackgroundState extends State<AnimatedGradientBackground>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<Alignment> _beginAlignmentAnimation;
-  late Animation<Alignment> _endAlignmentAnimation;
+  late Animation<double> _animation;
 
   @override
   void initState() {
@@ -26,38 +27,31 @@ class _AnimatedGradientBackgroundState extends State<AnimatedGradientBackground>
     _controller = AnimationController(
       vsync: this,
       duration: widget.duration,
+    )..repeat(reverse: true);
+
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
     );
-
-    _beginAlignmentAnimation = Tween<Alignment>(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
-
-    _endAlignmentAnimation = Tween<Alignment>(
-      begin: Alignment.topRight,
-      end: Alignment.bottomLeft,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
-
-    _controller.repeat(reverse: true); // <-- repeat AFTER everything is initialized
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _controller,
+      animation: _animation,
       builder: (context, child) {
         return Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: _beginAlignmentAnimation.value,
-              end: _endAlignmentAnimation.value,
-              colors: widget.colors,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: List.generate(widget.colors1.length, (index) {
+                return Color.lerp(
+                  widget.colors1[index],
+                  widget.colors2[index],
+                  _animation.value,
+                )!;
+              }),
             ),
           ),
         );

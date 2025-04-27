@@ -40,10 +40,18 @@ class _PokemonDetailViewState extends State<PokemonDetailView> {
 
   @override
   Widget build(BuildContext context) {
+    final Color mainTypeColor = getTypeColor(
+      pokemonDetail?.types.first ?? 'normal',
+    );
+    final Color lighterTypeColor = lighterColor(
+      mainTypeColor,
+      0.4, // 40% lighter
+    );
     return Scaffold(
-      backgroundColor: pokemonDetail != null && pokemonDetail!.types.isNotEmpty
-          ? getTypeColor(pokemonDetail!.types.first)
-          : Colors.white,
+      extendBodyBehindAppBar: true, // show the gradient behind the app bar
+      // backgroundColor: pokemonDetail != null && pokemonDetail!.types.isNotEmpty
+      //     ? getTypeColor(pokemonDetail!.types.first)
+      //     : Colors.white,
       appBar: AppBar(
         title: Text(widget.pokemon.name.toUpperCase()),
         backgroundColor: Colors.transparent,
@@ -52,11 +60,9 @@ class _PokemonDetailViewState extends State<PokemonDetailView> {
       body: Stack(
         children: [
           AnimatedGradientBackground(
-            colors: [
-              getTypeColor(pokemonDetail?.types.first ?? 'normal').withOpacity(0.8),
-              Colors.white.withOpacity(0.8),
-            ],
-            duration: Duration(seconds: 10), // slower drift if you want
+            colors1: [mainTypeColor, Colors.white],
+            colors2: [lighterTypeColor, Colors.white],
+            duration: Duration(seconds: 10),
           ),
           Center(
             child: Column(

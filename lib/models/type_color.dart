@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+Color lighterColor(Color color, [double amount = 0.3]) {
+  return Color.lerp(color, Colors.white, amount)!;
+}
+
 Color getTypeColor(String type) {
   switch (type) {
     case 'fire':
