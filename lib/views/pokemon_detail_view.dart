@@ -3,7 +3,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../services/api_service.dart';
 import '../models/pokemon.dart';
 import '../models/pokemon_detail.dart';
-import '../utils/type_color.dart';
+import '../models/type_color.dart';
+import '../widgets/animated_gradient_background.dart';
 
 // StatefulWidget (configuration only)
 class PokemonDetailView extends StatefulWidget {
@@ -48,54 +49,55 @@ class _PokemonDetailViewState extends State<PokemonDetailView> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Hero(
-              tag: widget.pokemon.name,
-              child: CachedNetworkImage(
-                imageUrl: widget.pokemon.imageUrl, // lightweight list image
-                height: 200,
-                width: 200,
-                fit: BoxFit.contain,
-                placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-              ),
+      body: Stack(
+        children: [
+          AnimatedGradientBackground(
+            colors: [
+              getTypeColor(pokemonDetail?.types.first ?? 'normal').withOpacity(0.8),
+              Colors.white.withOpacity(0.8),
+            ],
+            duration: Duration(seconds: 10), // slower drift if you want
+          ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Hero(
+                  tag: widget.pokemon.name,
+                  child: CachedNetworkImage(
+                    imageUrl: widget.pokemon.imageUrl,
+                    height: 200,
+                    width: 200,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                SizedBox(height: 20),
+                if (isLoading)
+                  CircularProgressIndicator()
+                else
+                  Column(
+                    children: [
+                      Text(pokemonDetail!.name.toUpperCase(),
+                          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                      SizedBox(height: 20),
+                      Text("Height: ${pokemonDetail!.height / 10} m", style: TextStyle(fontSize: 20)),
+                      Text("Weight: ${pokemonDetail!.weight / 10} kg", style: TextStyle(fontSize: 20)),
+                      SizedBox(height: 20),
+                      Wrap(
+                        spacing: 10,
+                        children: pokemonDetail!.types
+                            .map((type) => Chip(
+                          label: Text(type.toUpperCase()),
+                          backgroundColor: Colors.white.withOpacity(0.8),
+                        ))
+                            .toList(),
+                      ),
+                    ],
+                  ),
+              ],
             ),
-            SizedBox(height: 20),
-            if (isLoading)
-              CircularProgressIndicator()
-            else
-              Column(
-                children: [
-                  Text(
-                    pokemonDetail!.name.toUpperCase(),
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    "Height: ${pokemonDetail!.height / 10} m",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  Text(
-                    "Weight: ${pokemonDetail!.weight / 10} kg",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  SizedBox(height: 20),
-                  Wrap(
-                    spacing: 10,
-                    children: pokemonDetail!.types
-                        .map((type) => Chip(
-                      label: Text(type.toUpperCase()),
-                      backgroundColor: Colors.white.withOpacity(0.8),
-                    ))
-                        .toList(),
-                  ),
-                ],
-              ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
