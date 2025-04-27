@@ -1,42 +1,93 @@
 import 'package:flutter/material.dart';
-import '../models/pokemon.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../models/pokemon.dart';
+import '../models/pokemon_detail.dart';
+import '../utils/type_color.dart';
 
-class PokemonDetailView extends StatelessWidget {
+// StatefulWidget (configuration only)
+class PokemonDetailView extends StatefulWidget {
   final Pokemon pokemon;
 
   PokemonDetailView({required this.pokemon});
 
   @override
+  _PokemonDetailViewState createState() =>
+      _PokemonDetailViewState(); // creates the State
+}
+
+// State class (holds data + builds UI)
+class _PokemonDetailViewState extends State<PokemonDetailView> {
+  PokemonDetail? pokemonDetail;
+  bool isLoading = true;
+
+  final ApiService apiService = ApiService();
+
+  @override
+  void initState() {
+    super.initState();
+    loadDetail(); // _this_ is now where the data is fetched for the detail screen
+  }
+
+  Future<void> loadDetail() async {
+    final detail = await apiService.fetchPokemonDetail(widget.pokemon.url);
+    setState(() {
+      pokemonDetail = detail;
+      isLoading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: pokemonDetail != null && pokemonDetail!.types.isNotEmpty
+          ? getTypeColor(pokemonDetail!.types.first)
+          : Colors.white,
       appBar: AppBar(
-        title: Text(pokemon.name.toUpperCase()),
-        backgroundColor: Colors.redAccent,
+        title: Text(widget.pokemon.name.toUpperCase()),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Hero(
-              tag: pokemon.name,
-              child: CachedNetworkImage(
-                imageUrl: pokemon.imageUrl,
-                height: 200,
-                width: 200,
-                placeholder: (context, url) => CircularProgressIndicator(),
-                errorWidget: (context, url, error) => Icon(Icons.error),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Hero(
+                    tag: widget.pokemon.name,
+                    child: CachedNetworkImage(
+                      imageUrl: pokemonDetail!.imageUrl,
+                      height: 200,
+                      width: 200,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    pokemonDetail!.name.toUpperCase(),
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    "Height: ${pokemonDetail!.height / 10} m",
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Text(
+                    "Weight: ${pokemonDetail!.weight / 10} kg",
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  SizedBox(height: 20),
+                  Wrap(
+                    spacing: 10,
+                    children: pokemonDetail!.types
+                        .map((type) => Chip(
+                              label: Text(type.toUpperCase()),
+                              backgroundColor: Colors.white.withOpacity(0.8),
+                            ))
+                        .toList(),
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: 20),
-            Text(
-              pokemon.name.toUpperCase(),
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-            ),
-            // We can add stats/details below later
-          ],
-        ),
-      ),
     );
   }
 }
